@@ -1,0 +1,8 @@
+{
+  "mobSpawnOverrides": [
+    {
+      "mobType": "minecraft:zombie",
+      "isBaby": true
+    }
+  ]
+}

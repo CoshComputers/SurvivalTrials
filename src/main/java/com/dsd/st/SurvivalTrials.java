@@ -1,5 +1,6 @@
 package com.dsd.st ;
 
+import com.dsd.st.config.ConfigManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,6 +17,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.InputStream;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -23,9 +26,27 @@ import java.util.stream.Collectors;
 public class SurvivalTrials
 {
     // Directly reference a log4j logger.
-    private static final Logger LOGGER = LogManager.getLogger();
 
+    public static final String MOD_ID = "survival_trials";
+    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    public static ConfigManager configManager;
     public SurvivalTrials() {
+        SurvivalTrials.LOGGER.error("**************** Survival Trials Mod Constructor Called ***********************");
+
+        configManager = new ConfigManager();
+
+        configManager.loadMobConfig();
+        SurvivalTrials.LOGGER.debug("Mob Override Config: {}", configManager.mobSpawnConfig);
+
+        ConfigManager.MobOverride firstOverride = configManager.mobSpawnConfig.getMobSpawnOverrides().get(0);
+        SurvivalTrials.LOGGER.debug("First override - Mob Type: {}, Is Baby: {}", firstOverride.getMobType(), firstOverride.isBaby());
+
+
+        configManager.loadGearConfig();
+        SurvivalTrials.LOGGER.debug("Initial Gear Config: {}", configManager.initialGearConfig);
+
+
+
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         // Register the enqueueIMC method for modloading
@@ -37,6 +58,10 @@ public class SurvivalTrials
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    public static ConfigManager getConfigManager() {
+        return configManager;
     }
 
     private void setup(final FMLCommonSetupEvent event)
