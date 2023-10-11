@@ -4,21 +4,19 @@ import com.dsd.st.SurvivalTrials;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.annotations.SerializedName;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.nio.file.*;
 import java.util.Optional;
-import com.google.gson.reflect.TypeToken;
-
+import java.util.UUID;
 
 public class ConfigManager {
     private Gson defaultGson;
     private Gson mobOverrideGson;
+    private Gson playerGson;
+
+
+    private Path playerConfigDir;
+
     public InitialGearConfig initialGearConfig;
     public MobSpawnConfig mobSpawnConfig;
 
@@ -27,7 +25,15 @@ public class ConfigManager {
         mobOverrideGson = new GsonBuilder()
                 .registerTypeAdapter(MobOverrideConfigContainer.class, new MobOverrideConfigDeserializer())
                 .create();
+        playerGson = new GsonBuilder().setPrettyPrinting().create();
+        playerConfigDir = Paths.get("resources", "config", "players");
+        try {
+            Files.createDirectories(playerConfigDir);
+        } catch (IOException e) {
+            SurvivalTrials.LOGGER.error("Could not create player config directory", e);
+        }
     }
+
     public void loadGearConfig() {
         loadConfig("config/gearConfig.json", GearConfigContainer.class, defaultGson)
                 .ifPresent(config -> this.initialGearConfig = config.initialGearConfig);
@@ -36,6 +42,29 @@ public class ConfigManager {
     public void loadMobConfig() {
         loadConfig("config/mobOverrideConfig.json", MobOverrideConfigContainer.class, mobOverrideGson)
                 .ifPresent(config -> this.mobSpawnConfig = config.mobSpawnConfig);
+    }
+
+    public PlayerConfig getPlayerConfig(UUID playerUuid) {
+        Path configPath = playerConfigDir.resolve(playerUuid.toString() + ".json");
+        if (Files.exists(configPath)) {
+            try (Reader reader = Files.newBufferedReader(configPath)) {
+                SurvivalTrials.LOGGER.info("Reading config file from: " + configPath.toAbsolutePath().toString());
+                return playerGson.fromJson(reader, PlayerConfig.class);
+            } catch (IOException e) {
+                SurvivalTrials.LOGGER.error("Failed to read player config", e);
+            }
+        }
+        return null;
+    }
+
+    public void savePlayerConfig(UUID playerUuid, PlayerConfig playerConfig) {
+        Path configPath = playerConfigDir.resolve(playerUuid.toString() + ".json");
+        try (Writer writer = Files.newBufferedWriter(configPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            playerGson.toJson(playerConfig, writer);
+            SurvivalTrials.LOGGER.info("Writing config file to: " + configPath.toAbsolutePath().toString());
+        } catch (IOException e) {
+            SurvivalTrials.LOGGER.error("Failed to write player config", e);
+        }
     }
 
     private <T> Optional<T> loadConfig(String path, Class<T> configClass, Gson gson) {
@@ -55,6 +84,10 @@ public class ConfigManager {
         }
     }
 
+    public Path getPlayerConfigDir() {
+        return playerConfigDir;
+    }
+
 
     static class GearConfigContainer {
         public InitialGearConfig initialGearConfig;
@@ -72,45 +105,5 @@ public class ConfigManager {
         }
 
 
-    }
-
-
-    public static class MobSpawnConfig {
-        @SerializedName("mobSpawnOverrides")
-        private List<MobOverride> mobSpawnOverrides;
-
-        public List<MobOverride> getMobSpawnOverrides() {
-            return mobSpawnOverrides;
-        }
-
-        // Setter method for mobSpawnOverrides
-        public void setMobSpawnOverrides(List<MobOverride> mobSpawnOverrides) {
-            this.mobSpawnOverrides = mobSpawnOverrides;
-        }
-
-        // ... other methods if necessary
-    }
-
-    public static class MobOverride {
-        @SerializedName("mobType")
-        private String mobType;
-        @SerializedName("isBaby")
-        private boolean isBaby;
-
-        public String getMobType() {
-            return mobType;
-        }
-        public void setMobType(String mobType) {
-            this.mobType = mobType;
-        }
-
-        public boolean isBaby() {
-            return isBaby;
-        }
-
-        public void setBaby(boolean isBaby) {
-            this.isBaby = isBaby;
-        }
-        // ... other methods if necessary
     }
 }

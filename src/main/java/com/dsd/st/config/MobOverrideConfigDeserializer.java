@@ -19,18 +19,18 @@ public class MobOverrideConfigDeserializer implements JsonDeserializer<MobOverri
         JsonObject jsonObject = json.getAsJsonObject();
         JsonArray mobSpawnOverridesArray = jsonObject.getAsJsonArray("mobSpawnOverrides");
 
-        List<ConfigManager.MobOverride> mobSpawnOverrides = new ArrayList<>();
+        List<MobSpawnConfig.MobOverride> mobSpawnOverrides = new ArrayList<>();
         for (JsonElement mobOverrideElement : mobSpawnOverridesArray) {
             JsonObject mobOverrideObject = mobOverrideElement.getAsJsonObject();
             String mobType = mobOverrideObject.get("mobType").getAsString();
             boolean isBaby = mobOverrideObject.get("isBaby").getAsBoolean();
-            ConfigManager.MobOverride mobOverride = new ConfigManager.MobOverride();
+            MobSpawnConfig.MobOverride mobOverride = new MobSpawnConfig.MobOverride();
             mobOverride.setMobType(mobType);
             mobOverride.setBaby(isBaby);
             mobSpawnOverrides.add(mobOverride);
         }
 
-        ConfigManager.MobSpawnConfig mobSpawnConfig = new ConfigManager.MobSpawnConfig();
+        MobSpawnConfig mobSpawnConfig = new MobSpawnConfig();
         mobSpawnConfig.setMobSpawnOverrides(mobSpawnOverrides);
 
         ConfigManager.MobOverrideConfigContainer configContainer = new ConfigManager.MobOverrideConfigContainer();
