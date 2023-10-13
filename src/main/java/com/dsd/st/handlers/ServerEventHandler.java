@@ -32,12 +32,11 @@ public class ServerEventHandler {
         MinecraftServer server = event.getServer();
         File serverDir = server.getWorldPath(FolderName.ROOT).toFile().getParentFile();
         SurvivalTrials.setupDirectories(serverDir);
-
-        SurvivalTrials.LOGGER.info("Config Directory = {}",SurvivalTrials.getModDirectory().toString());
-        SurvivalTrials.LOGGER.info("Player Directory = {}",SurvivalTrials.getPlayerDataDirectory().toString());
-
-
         ConfigManager configManager = SurvivalTrials.getConfigManager();
+
+        SurvivalTrials.getModLogger().info(String.format("Config Directory = %s",SurvivalTrials.getModDirectory().toString()));
+        SurvivalTrials.getModLogger().info(String.format("Player Directory = %s",SurvivalTrials.getPlayerDataDirectory().toString()));
+
         configManager.loadMobConfig();
         // Create Overridden Mobs using the loaded Mob Config
         List<OverriddenMobType> overriddenMobTypes = MobSpawnManager.createOverriddenMobs(
@@ -47,18 +46,19 @@ public class ServerEventHandler {
         if (!overriddenMobTypes.isEmpty()) {
             int overriddenMobCount = overriddenMobTypes.size();
             SurvivalTrials.setOverriddenMobTypes(overriddenMobTypes);
-            SurvivalTrials.LOGGER.info("Number of Mobs Overridden = {}", overriddenMobCount);
-            SurvivalTrials.LOGGER.info("First Overridden Mob = {}", overriddenMobTypes.get(0).toString());
+            SurvivalTrials.getModLogger().info(String.format("Number of Mobs Overridden = %s", overriddenMobCount));
+            SurvivalTrials.getModLogger().info(String.format("First Overridden Mob = %s", overriddenMobTypes.get(0).toString()));
         } else {
-            SurvivalTrials.LOGGER.warn("No overridden mobs found or an error occurred while loading mob overrides.");
+            SurvivalTrials.getModLogger().warn("No overridden mobs found or an error occurred while loading mob overrides.");
         }
-
-
-
         configManager.loadGearConfig();
-        SurvivalTrials.LOGGER.info("Initial Gear Config: {}", configManager.getInitialGearConfigContainer().getInitialGearConfig());
+        SurvivalTrials.getModLogger().info(String.format("Initial Gear Config: %s", configManager.getInitialGearConfigContainer().getInitialGearConfig()));
 
         configManager.loadItemDropConfig();
         configManager.getItemDropConfigContainer().getItemDropConfig().debugItemDrops();
+
+        configManager.loadSurvivalTrialsConfig();
+        boolean isDebugOn = SurvivalTrials.getConfigManager().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isDebugOn();
+        SurvivalTrials.getModLogger().setDebugOn(isDebugOn);
     }
 }

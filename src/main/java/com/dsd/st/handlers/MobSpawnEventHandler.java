@@ -26,7 +26,7 @@ public class MobSpawnEventHandler {
 
         if (event.isSpawner()) {
             //Thread.dumpStack();
-            SurvivalTrials.LOGGER.info("[My CheckSpawn]Event came from spawner so bypassing");
+            SurvivalTrials.getModLogger().debug("Event came from spawner so bypassing");
             return;
         }
 
@@ -47,13 +47,13 @@ public class MobSpawnEventHandler {
                     newEntity.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, entity.yRot, entity.xRot);
                     boolean success = world.addFreshEntity(newEntity);
                     if (!success) {
-                       SurvivalTrials.LOGGER.error("[MY CHECKSPAWN]Failed to spawn entity " + randomMobType.toString());
+                       SurvivalTrials.getModLogger().error(String.format("Failed to spawn entity %s",randomMobType.toString()));
                     }
                     //still setting to stop other spawns as need to know this is working.
                     event.setResult(Event.Result.DENY);
                     if (event.isCancelable()) event.setCanceled(true);
                 }else{
-                    SurvivalTrials.LOGGER.error("[MY CHECKSPAWN][E] Failed to create Overriden Entity");
+                    SurvivalTrials.getModLogger().error("Failed to create Overridden Entity");
                 }
             }
         }

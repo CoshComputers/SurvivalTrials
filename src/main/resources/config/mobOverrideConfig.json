@@ -2,7 +2,9 @@
   "mobSpawnOverrides": [
     {
       "mobType": "minecraft:zombie",
-      "isBaby": true
+      "isBaby": true,
+      "blazeWeighting": 5,
+      "endermenWeighting": 5
     }
   ]
 }

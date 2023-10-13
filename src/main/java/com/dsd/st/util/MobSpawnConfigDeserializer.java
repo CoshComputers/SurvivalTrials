@@ -1,18 +1,15 @@
-package com.dsd.st.config;
+package com.dsd.st.util;
 
+import com.dsd.st.config.MobSpawnConfig;
 import com.dsd.st.config.ConfigManager.MobSpawnConfigContainer;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonArray;
+import com.google.gson.*;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MobOverrideConfigDeserializer implements JsonDeserializer<MobSpawnConfigContainer> {
+public class MobSpawnConfigDeserializer implements JsonDeserializer<MobSpawnConfigContainer> {
+
     @Override
     public MobSpawnConfigContainer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {

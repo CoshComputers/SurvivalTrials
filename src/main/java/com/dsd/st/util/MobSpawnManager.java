@@ -1,5 +1,6 @@
 package com.dsd.st.util;
 
+import com.dsd.st.SurvivalTrials;
 import com.dsd.st.config.MobSpawnConfig;
 import com.dsd.st.customisations.OverriddenMobType;
 import net.minecraft.entity.EntityType;
@@ -17,18 +18,22 @@ public class MobSpawnManager {
     public static List<OverriddenMobType> createOverriddenMobs(List<MobSpawnConfig.MobOverride> mobOverrides) {
         List<OverriddenMobType> overriddenMobs = new ArrayList<>();
 
-        // Define the weights- *change to be from the config file when this is working
-        final int NONE_WEIGHT = 90;
-        final int BLAZE_WEIGHT = 5;
-        final int ENDERMAN_WEIGHT = 5;
-
         // Ensure the total weight is 100
-        assert NONE_WEIGHT + BLAZE_WEIGHT + ENDERMAN_WEIGHT == 100;
+        int NONE_WEIGHT;
+        int BLAZE_WEIGHT;
+        int ENDERMAN_WEIGHT;
 
         for (MobSpawnConfig.MobOverride mobOverride : mobOverrides) {
+            BLAZE_WEIGHT = mobOverride.getBlazeWeighting();
+            ENDERMAN_WEIGHT = mobOverride.getEndermenWeighting();
+            if(BLAZE_WEIGHT < 0) BLAZE_WEIGHT = 10;
+            if(ENDERMAN_WEIGHT < 0) ENDERMAN_WEIGHT = 10;
+            NONE_WEIGHT = 100 - BLAZE_WEIGHT - ENDERMAN_WEIGHT;
+
+            SurvivalTrials.getModLogger().debug(String.format("Weighting: Blaze [%d], Endermen [%d], Normal [%d]", BLAZE_WEIGHT,ENDERMAN_WEIGHT,NONE_WEIGHT));
+
             ResourceLocation mobTypeResourceLocation = new ResourceLocation(mobOverride.getMobType());
             EntityType<?> entityType = ForgeRegistries.ENTITIES.getValue(mobTypeResourceLocation);
-
             // Ensure entityType is not null before creating OverriddenMobType instances
             if (entityType != null) {
                 for (int i = 0; i < NONE_WEIGHT; i++) {

@@ -32,13 +32,10 @@ public final class ItemDropConfig {
         return null;
 
     }
-
-
-
     public Drop getRandomDrop() {
 
         if (drops.isEmpty()) {
-            SurvivalTrials.LOGGER.error("No Drops to fetch a random drop from. Assigning to default drop");
+            SurvivalTrials.getModLogger().error("No Drops to fetch a random drop from. Assigning to default drop");
             return new Drop("rotten_flesh", 1);
         }
         int randomIndex = RANDOM.nextInt(drops.size());
@@ -57,10 +54,10 @@ public final class ItemDropConfig {
 
         //SurvivalTrials.LOGGER.info("************* Drops List debug output *************** ");
         synchronized (this.drops) {  // Synchronize on the drops list
-            SurvivalTrials.LOGGER.info("Drops List Size = {}", this.drops.size());
+            SurvivalTrials.getModLogger().info(String.format("Drops List Size = %d", this.drops.size()));
             for (int i = 0; i < drops.size(); i++) {
                 if (drops.get(i) == null) {
-                    SurvivalTrials.LOGGER.error("Null drop at index {}", i);
+                    SurvivalTrials.getModLogger().error(String.format("Null drop at index %d", i));
                 }
             }
         }

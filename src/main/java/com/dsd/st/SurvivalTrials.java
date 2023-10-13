@@ -3,6 +3,7 @@ package com.dsd.st;
 import com.dsd.st.config.ConfigManager;
 import com.dsd.st.config.PlayerConfig;
 import com.dsd.st.customisations.OverriddenMobType;
+import com.dsd.st.util.CustomLogger;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -14,8 +15,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +22,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("survival_trials")
@@ -31,13 +29,12 @@ public class SurvivalTrials {
     private static Path modDirectory;
     private static Path playerDataDirectory;
     public static final String MOD_ID = "survival_trials";
-    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    private static CustomLogger modLogger;
     public static ConfigManager configManager;
     private static final Map<UUID, PlayerConfig> playerConfigs = new HashMap<>();
     public static List<OverriddenMobType> overriddenMobTypes = new ArrayList<>();
 
     public SurvivalTrials() {
-        LOGGER.info("[SurvivalTrials Constructor Called]");
 
         configManager = new ConfigManager();
 
@@ -57,32 +54,29 @@ public class SurvivalTrials {
     public static ConfigManager getConfigManager() {
         return configManager;
     }
-
+    public static CustomLogger getModLogger(){ return modLogger;}
     private void setup(final FMLCommonSetupEvent event) {
-        // some preinit code
-        LOGGER.info("[SurvivalTrials Setup Active]");
-
+        modLogger = new CustomLogger();
+        modLogger.info("We have loaded the Mod's Config");
     }
 
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        // do something that can only be done on the client
-        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().options);
+
+
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {
         // some example code to dispatch IMC to another mod
         InterModComms.sendTo("survivaltrials", "helloworld", () -> {
-            LOGGER.info("Hello world from the MDK");
+           // LOGGER.info("Hello world from the MDK");
             return "Hello world";
         });
     }
 
     private void processIMC(final InterModProcessEvent event) {
-        // some example code to receive and process InterModComms from other mods
-        LOGGER.info("Got IMC {}", event.getIMCStream().
-                map(m -> m.getMessageSupplier().get()).
-                collect(Collectors.toList()));
+
+
     }
 
 
@@ -103,9 +97,9 @@ public class SurvivalTrials {
 
         try {
             Files.createDirectories(modDir);
-            LOGGER.debug("Root Directory created or already exists at {}", modDir.toString());
+
         } catch (IOException e) {
-            LOGGER.error("Failed to create Root Directory at {}", modDir.toString(), e);
+            modLogger.error(String.format("Failed to create Root Directory at %sz\n%s", modDir.toString(), e));
         }
 
         setModDirectory(modDir);
@@ -115,9 +109,9 @@ public class SurvivalTrials {
 
         try {
             Files.createDirectories(playerDataDir);
-            LOGGER.debug("PlayerData Directory created or already exists at {}", playerDataDir.toString());
+
         } catch (IOException e) {
-            LOGGER.error("Failed to create PlayerData Directory at {}", playerDataDir.toString(), e);
+            modLogger.error(String.format("Failed to create PlayerData Directory at %s\n%s", playerDataDir.toString(), e));
         }
 
         setPlayerDirectory(playerDataDir);
@@ -147,13 +141,13 @@ public class SurvivalTrials {
                     Path targetPath = modDirectory.resolve(srcPath.relativize(entry).toString());
                     // If the file does not exist in the mod directory, copy it over.
                     if (!Files.exists(targetPath)) {
-                        SurvivalTrials.LOGGER.info("Copying default config file: {}", entry.getFileName());
+                        modLogger.info(String.format("Copying default config file: %s", entry.getFileName()));
                         Files.copy(entry, targetPath, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
         } catch (Exception e) {
-            SurvivalTrials.LOGGER.error("Failed to copy default config files", e);
+            modLogger.error(String.format("Failed to copy default config files\n%s", e));
         }
     }
 

@@ -67,20 +67,20 @@ public class PlayerEventHandler {
 
     /********************************* Internal Helper Methods ****************************************/
     private static void givePlayerGear(PlayerEntity player) {
-        SurvivalTrials.LOGGER.debug("Loading initial gear...");
+        SurvivalTrials.getModLogger().debug("Loading initial gear...");
         if (SurvivalTrials.configManager == null) {
-            SurvivalTrials.LOGGER.error("Config manager is null");
+            SurvivalTrials.getModLogger().error("Config manager is null - it should have been initialised. Something is not behaving.");
             return;
         }
         if (SurvivalTrials.configManager.getInitialGearConfigContainer().getInitialGearConfig() == null) {
-            SurvivalTrials.LOGGER.error("Initial gear config is null");
+            SurvivalTrials.getModLogger().error("Initial gear config is null - it should have been initialised. Something is not behaving.");
             return;
         }
         for (InitialGearConfig.GearItem gearItem : SurvivalTrials.configManager.getInitialGearConfigContainer().getInitialGearConfig().getInitialGear()) {
             ResourceLocation itemResourceLocation = new ResourceLocation(gearItem.getItem());
             Item item = ForgeRegistries.ITEMS.getValue(itemResourceLocation);
             if (item == null | item == Items.AIR) {
-                SurvivalTrials.LOGGER.error("Item not found: {}", itemResourceLocation);
+                SurvivalTrials.getModLogger().error(String.format("Item not found: %s", itemResourceLocation));
             } else {
                 ItemStack stack = new ItemStack(item);
                 Map<Enchantment, Integer> enchantments = new HashMap<>();
@@ -96,13 +96,13 @@ public class PlayerEventHandler {
                 player.inventory.add(stack);
             }
         }
-        SurvivalTrials.LOGGER.debug("Finished with Config");
+        SurvivalTrials.getModLogger().debug("Finished with Config");
     }
 
     private static int getValidEnchantmentLevel(Enchantment enchantment, int level) {
         int maxLevel = enchantment.getMaxLevel();
         if (level > maxLevel) {
-            SurvivalTrials.LOGGER.warn("Enchantment level " + level + " for " + enchantment.getRegistryName() +
+            SurvivalTrials.getModLogger().warn("Enchantment level " + level + " for " + enchantment.getRegistryName() +
                     " is too high. Maximum level is " + maxLevel +
                     ". Adjusting level to " + maxLevel + ".");
             return maxLevel;

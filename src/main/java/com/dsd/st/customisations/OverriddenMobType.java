@@ -42,12 +42,12 @@ public class OverriddenMobType {
                 return entity;
             } else {
                 // Log an error message if the entity could not be created
-                SurvivalTrials.LOGGER.error("Failed to create entity of type {}", this.entityType);
+                SurvivalTrials.getModLogger().error(String.format("Failed to create entity of type %s", this.entityType));
                 return null;
             }
         } catch (Exception e) {
             // Log the exception
-            SurvivalTrials.LOGGER.error("Exception occurred while creating entity of type {}: {}", this.entityType, e.getMessage());
+            SurvivalTrials.getModLogger().error(String.format("Exception occurred while creating entity of type %s: %s", this.entityType, e.getMessage()));
             return null;
         }
     }
