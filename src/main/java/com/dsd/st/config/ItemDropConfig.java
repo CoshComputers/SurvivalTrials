@@ -1,6 +1,6 @@
 package com.dsd.st.config;
 
-import com.dsd.st.SurvivalTrials;
+import com.dsd.st.util.CustomLogger;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Collections;
@@ -34,8 +34,8 @@ public final class ItemDropConfig {
     }
     public Drop getRandomDrop() {
 
-        if (drops.isEmpty()) {
-            SurvivalTrials.getModLogger().error("No Drops to fetch a random drop from. Assigning to default drop");
+        if (drops.isEmpty() || !ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isGiveSpecialLoot()) {
+            CustomLogger.getInstance().error("No Drops to fetch a random drop from. Assigning to default drop");
             return new Drop("rotten_flesh", 1);
         }
         int randomIndex = RANDOM.nextInt(drops.size());
@@ -54,10 +54,10 @@ public final class ItemDropConfig {
 
         //SurvivalTrials.LOGGER.info("************* Drops List debug output *************** ");
         synchronized (this.drops) {  // Synchronize on the drops list
-            SurvivalTrials.getModLogger().info(String.format("Drops List Size = %d", this.drops.size()));
+            CustomLogger.getInstance().info(String.format("Drops List Size = %d", this.drops.size()));
             for (int i = 0; i < drops.size(); i++) {
                 if (drops.get(i) == null) {
-                    SurvivalTrials.getModLogger().error(String.format("Null drop at index %d", i));
+                    CustomLogger.getInstance().error(String.format("Null drop at index %d", i));
                 }
             }
         }

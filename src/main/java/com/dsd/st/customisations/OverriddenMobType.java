@@ -1,7 +1,9 @@
 package com.dsd.st.customisations;
 
-import com.dsd.st.SurvivalTrials;
+import com.dsd.st.config.ConfigManager;
 import com.dsd.st.config.PlayerConfig;
+import com.dsd.st.util.CustomLogger;
+import com.dsd.st.util.PlayerManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.monster.MonsterEntity;
@@ -43,12 +45,12 @@ public class OverriddenMobType {
                 return entity;
             } else {
                 // Log an error message if the entity could not be created
-                SurvivalTrials.getModLogger().error(String.format("Failed to create entity of type %s", this.entityType));
+                CustomLogger.getInstance().error(String.format("Failed to create entity of type %s", this.entityType));
                 return null;
             }
         } catch (Exception e) {
             // Log the exception
-            SurvivalTrials.getModLogger().error(String.format("Exception occurred while creating entity of type %s: %s", this.entityType, e.getMessage()));
+            CustomLogger.getInstance().error(String.format("Exception occurred while creating entity of type %s: %s", this.entityType, e.getMessage()));
             return null;
         }
     }
@@ -72,7 +74,7 @@ public class OverriddenMobType {
                 monsterEntity.setItemSlot(EquipmentSlotType.MAINHAND, handItem);
                 break;
             default:
-                if(SurvivalTrials.getConfigManager().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isUsePlayerHeads()){
+                if(ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isUsePlayerHeads()){
                     setRandomPlayerHead(monsterEntity);
                 }
                 break;
@@ -82,18 +84,16 @@ public class OverriddenMobType {
 
     private void setRandomPlayerHead(MonsterEntity monsterEntity) {
         // Assume playerConfigs is a static field of type Map<UUID, PlayerConfig>
-        if (!SurvivalTrials.getAllPlayerConfigs().isEmpty()) {
+        if (!PlayerManager.getInstance().getAllPlayerConfigs().isEmpty()) {
             // Pick a random player UUID
-            PlayerConfig randomPlayer = SurvivalTrials.getRandomPlayer();
-            SurvivalTrials.getModLogger().debug(String.format("Random Player selected [%s]",randomPlayer.getPlayerName()));
-
+            PlayerConfig randomPlayer = PlayerManager.getInstance().getRandomPlayer();
             ItemStack playerHead = randomPlayer.getPlayerHead();
             if(playerHead != null) {
                 // Set the player's skin data on the head
                 // Equip the monster entity with the player head
                 monsterEntity.setItemSlot(EquipmentSlotType.HEAD, playerHead);
             }else{
-                SurvivalTrials.getModLogger().error(String.format("Failed to get Player head for [%s]",randomPlayer.getPlayerName()));
+                CustomLogger.getInstance().error(String.format("Failed to get Player head"));
             }
         }
     }

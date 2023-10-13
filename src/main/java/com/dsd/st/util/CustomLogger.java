@@ -5,14 +5,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class CustomLogger {
-
+    private static final CustomLogger INSTANCE = new CustomLogger();
     private final Logger logger;
     private boolean isDebugOn;
-    public CustomLogger() {
+    private CustomLogger() {
         this.logger = LogManager.getLogger(SurvivalTrials.MOD_ID);
         this.isDebugOn = false; //assuming no debug until config is loaded.
     }
 
+    public static CustomLogger getInstance() {
+        return INSTANCE;
+    }
     public void setDebugOn(boolean debugOn){
         this.isDebugOn = debugOn;
     }
@@ -28,7 +31,6 @@ public class CustomLogger {
     public void info(String message) {
         logger.info(message);
     }
-
     public void error(String message) {
         logger.error(message);
     }

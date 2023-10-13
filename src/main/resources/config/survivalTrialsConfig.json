@@ -2,7 +2,7 @@
   "survivalTrialsConfig": {
       "overrideMods": true,
       "spawnGiants": true,
-      "giveInitialGear": true,
+      "giveInitialGear": false,
       "giveSpecialLoot": true,
       "usePlayerHeads": true,
       "debugOn": true

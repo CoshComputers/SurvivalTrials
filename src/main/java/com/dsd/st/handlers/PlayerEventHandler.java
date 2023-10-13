@@ -4,6 +4,9 @@ import com.dsd.st.SurvivalTrials;
 import com.dsd.st.config.ConfigManager;
 import com.dsd.st.config.InitialGearConfig;
 import com.dsd.st.config.PlayerConfig;
+import com.dsd.st.util.CustomLogger;
+import com.dsd.st.util.FileAndDirectoryManager;
+import com.dsd.st.util.PlayerManager;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,13 +27,13 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID)
 public class PlayerEventHandler {
+    private static final ConfigManager configManager = ConfigManager.getInstance();
 
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         PlayerEntity player = event.getPlayer();
         UUID playerUUID = player.getUUID();
-        ConfigManager configManager = SurvivalTrials.configManager;  // Assuming you have a way to access ConfigManager
-        Path playerConfigFilePath = SurvivalTrials.getPlayerDataDirectory().resolve(playerUUID.toString() + ".json");
+        Path playerConfigFilePath = FileAndDirectoryManager.getInstance().getPlayerDataDirectory().resolve(playerUUID.toString() + ".json");
         PlayerConfig playerConfig;
         if (Files.exists(playerConfigFilePath)) {
             // Player config file exists, load it
@@ -38,20 +41,21 @@ public class PlayerEventHandler {
             // Do something with playerConfig if necessary
         } else {
             // Player config file does not exist, give them initial gear
-            givePlayerGear(player);
+            if(ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isGiveInitialGear()){
+                givePlayerGear(player);
+            }
             // Create new player config object
             playerConfig = new PlayerConfig(playerUUID);
         }
-        SurvivalTrials.addPlayerConfig(playerConfig);
-        SurvivalTrials.configManager.savePlayerConfig(playerUUID,playerConfig);
+        PlayerManager.getInstance().addPlayerConfig(playerConfig);
+        configManager.savePlayerConfig(playerUUID,playerConfig);
     }
 
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         PlayerEntity player = event.getPlayer();
         UUID playerUUID = player.getUUID();
-        PlayerConfig playerConfig = SurvivalTrials.getPlayerConfig(playerUUID);
-        ConfigManager configManager = SurvivalTrials.configManager;
+        PlayerConfig playerConfig = PlayerManager.getInstance().getPlayerConfig(playerUUID);
         configManager.savePlayerConfig(playerUUID,playerConfig);
     }
 
@@ -67,20 +71,20 @@ public class PlayerEventHandler {
 
     /********************************* Internal Helper Methods ****************************************/
     private static void givePlayerGear(PlayerEntity player) {
-        SurvivalTrials.getModLogger().debug("Loading initial gear...");
-        if (SurvivalTrials.configManager == null) {
-            SurvivalTrials.getModLogger().error("Config manager is null - it should have been initialised. Something is not behaving.");
+        CustomLogger.getInstance().debug("Loading initial gear...");
+        if (configManager == null) {
+            CustomLogger.getInstance().error("Config manager is null - it should have been initialised. Something is not behaving.");
             return;
         }
-        if (SurvivalTrials.configManager.getInitialGearConfigContainer().getInitialGearConfig() == null) {
-            SurvivalTrials.getModLogger().error("Initial gear config is null - it should have been initialised. Something is not behaving.");
+        if (configManager.getInitialGearConfigContainer().getInitialGearConfig() == null) {
+            CustomLogger.getInstance().error("Initial gear config is null - it should have been initialised. Something is not behaving.");
             return;
         }
-        for (InitialGearConfig.GearItem gearItem : SurvivalTrials.configManager.getInitialGearConfigContainer().getInitialGearConfig().getInitialGear()) {
+        for (InitialGearConfig.GearItem gearItem : configManager.getInitialGearConfigContainer().getInitialGearConfig().getInitialGear()) {
             ResourceLocation itemResourceLocation = new ResourceLocation(gearItem.getItem());
             Item item = ForgeRegistries.ITEMS.getValue(itemResourceLocation);
             if (item == null | item == Items.AIR) {
-                SurvivalTrials.getModLogger().error(String.format("Item not found: %s", itemResourceLocation));
+                CustomLogger.getInstance().error(String.format("Item not found: %s", itemResourceLocation));
             } else {
                 ItemStack stack = new ItemStack(item);
                 Map<Enchantment, Integer> enchantments = new HashMap<>();
@@ -96,13 +100,13 @@ public class PlayerEventHandler {
                 player.inventory.add(stack);
             }
         }
-        SurvivalTrials.getModLogger().debug("Finished with Config");
+        CustomLogger.getInstance().debug("Finished with Config");
     }
 
     private static int getValidEnchantmentLevel(Enchantment enchantment, int level) {
         int maxLevel = enchantment.getMaxLevel();
         if (level > maxLevel) {
-            SurvivalTrials.getModLogger().warn("Enchantment level " + level + " for " + enchantment.getRegistryName() +
+            CustomLogger.getInstance().warn("Enchantment level " + level + " for " + enchantment.getRegistryName() +
                     " is too high. Maximum level is " + maxLevel +
                     ". Adjusting level to " + maxLevel + ".");
             return maxLevel;

@@ -1,7 +1,9 @@
 package com.dsd.st.handlers;
 
 import com.dsd.st.SurvivalTrials;
+import com.dsd.st.config.ConfigManager;
 import com.dsd.st.config.ItemDropConfig;
+import com.dsd.st.util.CustomLogger;
 import com.dsd.st.util.EnumTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -38,18 +40,16 @@ public class MobInteractionEventHandler {
                 MonsterEntity mob = (MonsterEntity) entity;
                 ItemStack headItem = mob.getItemBySlot(EquipmentSlotType.HEAD);
                 EnumTypes.SkullDropMapping mobType = EnumTypes.SkullDropMapping.fromHeadItem(headItem);
-                /*if(mobType == EnumTypes.SkullDropMapping.UNKNOWN && !config.givespecialloot) {
-                    continue;
-                }*/
+
                 ItemDropConfig.Drop dropItem = getItemForMobType(mobType);
 
                 PlayerEntity player = (PlayerEntity) source.getDirectEntity();
                 int lootingLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MOB_LOOTING, player.getMainHandItem());
-                SurvivalTrials.getModLogger().debug(String.format("Player Entity %s - Has Looting Level %d",player.getDisplayName(),lootingLevel));
+                CustomLogger.getInstance().debug(String.format("Player Entity %s - Has Looting Level %d",player.getDisplayName(),lootingLevel));
                 int dropAmount = calculateDropAmount(dropItem, lootingLevel);
 
                 if( dropItemInWorld(world,entity, dropItem.getItem(), dropAmount)) {
-                    SurvivalTrials.getModLogger().debug(String.format("Dropped %d of %s",dropAmount,dropItem.getItem()));
+                    CustomLogger.getInstance().debug(String.format("Dropped %d of %s",dropAmount,dropItem.getItem()));
                     if (event.isCancelable()) event.setCanceled(true);
                     event.setResult(Event.Result.DENY);
                 }
@@ -63,7 +63,7 @@ public class MobInteractionEventHandler {
         Item item = Registry.ITEM.getOptional(itemResourceLocation).orElse(Items.AIR);  // Default to air if item is not found
         if (item == Items.AIR) {
             // Log a warning if the item name is invalid
-            SurvivalTrials.getModLogger().warn(String.format("Invalid item name: %s", itemName));
+            CustomLogger.getInstance().warn(String.format("Invalid item name: %s", itemName));
             return false;
         }
 
@@ -85,9 +85,9 @@ public class MobInteractionEventHandler {
 
     private static ItemDropConfig.Drop getItemForMobType(EnumTypes.SkullDropMapping mobType) {
         ItemDropConfig.Drop itemToDrop = null;
-        ItemDropConfig itemDrops = SurvivalTrials.getConfigManager().getItemDropConfigContainer().getItemDropConfig();
+        ItemDropConfig itemDrops = ConfigManager.getInstance().getItemDropConfigContainer().getItemDropConfig();
         if (itemDrops.getDrops().isEmpty()) {
-            SurvivalTrials.getModLogger().error("No Drop Items configured for Baby Zombie to drop setting to Rotten Flesh");
+            CustomLogger.getInstance().error("No Drop Items configured for Baby Zombie to drop setting to Rotten Flesh");
             itemToDrop = new ItemDropConfig.Drop("rotten_flesh", 1);
         }else {
             if(mobType == EnumTypes.SkullDropMapping.UNKNOWN){
@@ -97,7 +97,7 @@ public class MobInteractionEventHandler {
             }
         }
         if(itemToDrop == null){
-            SurvivalTrials.getModLogger().error("ItemToDrop is null, this is incorrect - setting to Rotten Flesh");
+            CustomLogger.getInstance().error("ItemToDrop is null, this is incorrect - setting to Rotten Flesh");
             itemToDrop = new ItemDropConfig.Drop("rotten_flesh", 1);
         }
         return itemToDrop;

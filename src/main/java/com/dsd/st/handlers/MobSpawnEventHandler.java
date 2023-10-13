@@ -1,9 +1,11 @@
 package com.dsd.st.handlers;
 
 import com.dsd.st.SurvivalTrials;
+import com.dsd.st.config.ConfigManager;
 import com.dsd.st.customisations.OverriddenMobType;
+import com.dsd.st.util.CustomLogger;
+import com.dsd.st.util.MobSpawnManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.monster.MonsterEntity;
@@ -22,11 +24,14 @@ public class MobSpawnEventHandler {
 
     @SubscribeEvent
     public static void onCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
-        EntityType<?> entityType = null;
 
+        //check if the configuration for the Mod is set to override Mob spawning. If NOT, return.
+        if(!ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isOverrideMods()){
+            return;
+        }
         if (event.isSpawner()) {
             //Thread.dumpStack();
-            SurvivalTrials.getModLogger().debug("Event came from spawner so bypassing");
+            CustomLogger.getInstance().debug("Event came from spawner so bypassing");
             return;
         }
 
@@ -34,7 +39,7 @@ public class MobSpawnEventHandler {
         World world = entity.level;
 
         if (!world.isClientSide && entity instanceof MonsterEntity && !(entity instanceof EnderDragonEntity)) {
-            List<OverriddenMobType> overriddenMobTypes = SurvivalTrials.getOverriddenMobTypes();
+            List<OverriddenMobType> overriddenMobTypes = MobSpawnManager.getInstance().getOverriddenMobTypes();
 
             // If we have mobs to use.
             if (!overriddenMobTypes.isEmpty()) {
@@ -47,13 +52,13 @@ public class MobSpawnEventHandler {
                     newEntity.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, entity.yRot, entity.xRot);
                     boolean success = world.addFreshEntity(newEntity);
                     if (!success) {
-                       SurvivalTrials.getModLogger().error(String.format("Failed to spawn entity %s",randomMobType.toString()));
+                       CustomLogger.getInstance().error(String.format("Failed to spawn entity %s",randomMobType.toString()));
                     }
                     //still setting to stop other spawns as need to know this is working.
                     event.setResult(Event.Result.DENY);
                     if (event.isCancelable()) event.setCanceled(true);
                 }else{
-                    SurvivalTrials.getModLogger().error("Failed to create Overridden Entity");
+                    CustomLogger.getInstance().error("Failed to create Overridden Entity");
                 }
             }
         }
