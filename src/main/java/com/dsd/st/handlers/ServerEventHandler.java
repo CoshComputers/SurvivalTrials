@@ -30,6 +30,7 @@ public class ServerEventHandler {
     public static void onServerStarting(FMLServerStartingEvent event) {
 
         MinecraftServer server = event.getServer();
+        SurvivalTrials.setServer(server);
         File serverDir = server.getWorldPath(FolderName.ROOT).toFile().getParentFile();
         SurvivalTrials.setupDirectories(serverDir);
         ConfigManager configManager = SurvivalTrials.getConfigManager();

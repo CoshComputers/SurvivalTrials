@@ -5,6 +5,7 @@ import com.dsd.st.config.PlayerConfig;
 import com.dsd.st.customisations.OverriddenMobType;
 import com.dsd.st.util.CustomLogger;
 import net.minecraft.block.Block;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,6 +31,7 @@ public class SurvivalTrials {
     private static Path playerDataDirectory;
     public static final String MOD_ID = "survival_trials";
     private static CustomLogger modLogger;
+    private  static MinecraftServer server;
     public static ConfigManager configManager;
     private static final Map<UUID, PlayerConfig> playerConfigs = new HashMap<>();
     public static List<OverriddenMobType> overriddenMobTypes = new ArrayList<>();
@@ -175,12 +177,26 @@ public class SurvivalTrials {
     public static void addPlayerConfig(PlayerConfig config) {
         playerConfigs.put(config.getPlayerUuid(), config);
     }
-
+    public static PlayerConfig getRandomPlayer() {
+        if (playerConfigs != null && !playerConfigs.isEmpty()) {
+            List<UUID> playerUuids = new ArrayList<>(playerConfigs.keySet());
+            UUID randomPlayerUuid = playerUuids.get(new Random().nextInt(playerUuids.size()));
+            return playerConfigs.get(randomPlayerUuid);
+        }
+        return null;  // Return null or throw an exception if no players are available
+    }
     public static PlayerConfig getPlayerConfig(UUID playerUuid) {
         return playerConfigs.get(playerUuid);
     }
 
     public static Map<UUID, PlayerConfig> getAllPlayerConfigs() {
         return Collections.unmodifiableMap(playerConfigs);
+    }
+
+    public static void setServer(MinecraftServer s){
+        server = s;
+    }
+    public static MinecraftServer getServer(){
+        return server;
     }
 }

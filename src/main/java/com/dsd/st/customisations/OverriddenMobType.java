@@ -1,6 +1,7 @@
 package com.dsd.st.customisations;
 
 import com.dsd.st.SurvivalTrials;
+import com.dsd.st.config.PlayerConfig;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.monster.MonsterEntity;
@@ -61,20 +62,39 @@ public class OverriddenMobType {
             case BLAZE:  // Blaze head and blaze rod
                 head = getSkull("MHF_Blaze");
                 handItem = new ItemStack(Items.BLAZE_ROD);
+                monsterEntity.setItemSlot(EquipmentSlotType.HEAD, head);
+                monsterEntity.setItemSlot(EquipmentSlotType.MAINHAND, handItem);
                 break;
             case ENDERMAN:  // Enderman head and ender pearl
                 head = getSkull("MHF_Enderman");
                 handItem = new ItemStack(Items.ENDER_PEARL);
+                monsterEntity.setItemSlot(EquipmentSlotType.HEAD, head);
+                monsterEntity.setItemSlot(EquipmentSlotType.MAINHAND, handItem);
                 break;
             default:
+                if(SurvivalTrials.getConfigManager().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isUsePlayerHeads()){
+                    setRandomPlayerHead(monsterEntity);
+                }
                 break;
         }
 
-        if (!head.isEmpty()) {
-            monsterEntity.setItemSlot(EquipmentSlotType.HEAD, head);
-        }
-        if (!handItem.isEmpty()) {
-            monsterEntity.setItemSlot(EquipmentSlotType.MAINHAND, handItem);
+    }
+
+    private void setRandomPlayerHead(MonsterEntity monsterEntity) {
+        // Assume playerConfigs is a static field of type Map<UUID, PlayerConfig>
+        if (!SurvivalTrials.getAllPlayerConfigs().isEmpty()) {
+            // Pick a random player UUID
+            PlayerConfig randomPlayer = SurvivalTrials.getRandomPlayer();
+            SurvivalTrials.getModLogger().debug(String.format("Random Player selected [%s]",randomPlayer.getPlayerName()));
+
+            ItemStack playerHead = randomPlayer.getPlayerHead();
+            if(playerHead != null) {
+                // Set the player's skin data on the head
+                // Equip the monster entity with the player head
+                monsterEntity.setItemSlot(EquipmentSlotType.HEAD, playerHead);
+            }else{
+                SurvivalTrials.getModLogger().error(String.format("Failed to get Player head for [%s]",randomPlayer.getPlayerName()));
+            }
         }
     }
 
