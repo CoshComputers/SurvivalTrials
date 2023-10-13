@@ -30,7 +30,7 @@ public class PlayerEventHandler {
         PlayerEntity player = event.getPlayer();
         UUID playerUUID = player.getUUID();
         ConfigManager configManager = SurvivalTrials.configManager;  // Assuming you have a way to access ConfigManager
-        Path playerConfigFilePath = configManager.getPlayerConfigDir().resolve(playerUUID.toString() + ".json");
+        Path playerConfigFilePath = SurvivalTrials.getPlayerDataDirectory().resolve(playerUUID.toString() + ".json");
         PlayerConfig playerConfig;
         if (Files.exists(playerConfigFilePath)) {
             // Player config file exists, load it
@@ -72,11 +72,11 @@ public class PlayerEventHandler {
             SurvivalTrials.LOGGER.error("Config manager is null");
             return;
         }
-        if (SurvivalTrials.configManager.initialGearConfig == null) {
+        if (SurvivalTrials.configManager.getInitialGearConfigContainer().getInitialGearConfig() == null) {
             SurvivalTrials.LOGGER.error("Initial gear config is null");
             return;
         }
-        for (InitialGearConfig.GearItem gearItem : SurvivalTrials.configManager.initialGearConfig.getInitialGear()) {
+        for (InitialGearConfig.GearItem gearItem : SurvivalTrials.configManager.getInitialGearConfigContainer().getInitialGearConfig().getInitialGear()) {
             ResourceLocation itemResourceLocation = new ResourceLocation(gearItem.getItem());
             Item item = ForgeRegistries.ITEMS.getValue(itemResourceLocation);
             if (item == null | item == Items.AIR) {

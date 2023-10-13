@@ -1,6 +1,6 @@
 package com.dsd.st.config;
 
-import com.dsd.st.config.ConfigManager.MobOverrideConfigContainer;
+import com.dsd.st.config.ConfigManager.MobSpawnConfigContainer;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonDeserializationContext;
@@ -12,9 +12,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MobOverrideConfigDeserializer implements JsonDeserializer<MobOverrideConfigContainer> {
+public class MobOverrideConfigDeserializer implements JsonDeserializer<MobSpawnConfigContainer> {
     @Override
-    public MobOverrideConfigContainer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+    public MobSpawnConfigContainer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
         JsonArray mobSpawnOverridesArray = jsonObject.getAsJsonArray("mobSpawnOverrides");
@@ -33,7 +33,7 @@ public class MobOverrideConfigDeserializer implements JsonDeserializer<MobOverri
         MobSpawnConfig mobSpawnConfig = new MobSpawnConfig();
         mobSpawnConfig.setMobSpawnOverrides(mobSpawnOverrides);
 
-        ConfigManager.MobOverrideConfigContainer configContainer = new ConfigManager.MobOverrideConfigContainer();
+        MobSpawnConfigContainer configContainer = new MobSpawnConfigContainer();
         configContainer.setMobSpawnConfig(mobSpawnConfig);
 
         return configContainer;

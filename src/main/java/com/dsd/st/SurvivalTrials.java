@@ -1,10 +1,8 @@
 package com.dsd.st;
 
 import com.dsd.st.config.ConfigManager;
-import com.dsd.st.config.MobSpawnConfig;
 import com.dsd.st.config.PlayerConfig;
 import com.dsd.st.customisations.OverriddenMobType;
-import com.dsd.st.util.MobSpawnManager;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -15,33 +13,27 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("survival_trials")
 public class SurvivalTrials {
-
-
     private static Path modDirectory;
     private static Path playerDataDirectory;
     public static final String MOD_ID = "survival_trials";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
     public static ConfigManager configManager;
-
     private static final Map<UUID, PlayerConfig> playerConfigs = new HashMap<>();
-
-
     public static List<OverriddenMobType> overriddenMobTypes = new ArrayList<>();
 
     public SurvivalTrials() {
@@ -70,19 +62,6 @@ public class SurvivalTrials {
         // some preinit code
         LOGGER.info("[SurvivalTrials Setup Active]");
 
-        configManager.loadMobConfig();
-        SurvivalTrials.LOGGER.info("Mob Override Config: {}", configManager.mobSpawnConfig);
-
-        MobSpawnConfig.MobOverride firstOverride = configManager.mobSpawnConfig.getMobSpawnOverrides().get(0);
-        SurvivalTrials.LOGGER.info("First override - Mob Type: {}, Is Baby: {}", firstOverride.getMobType(), firstOverride.isBaby());
-
-        configManager.loadGearConfig();
-        SurvivalTrials.LOGGER.info("Initial Gear Config: {}", configManager.initialGearConfig);
-
-        List<MobSpawnConfig.MobOverride> tempListMobOverrides = configManager.mobSpawnConfig.getMobSpawnOverrides();
-        overriddenMobTypes = MobSpawnManager.createOverriddenMobs(tempListMobOverrides);
-        LOGGER.info("{} Overridden Mobs Created", overriddenMobTypes.size());
-
     }
 
 
@@ -106,12 +85,6 @@ public class SurvivalTrials {
                 collect(Collectors.toList()));
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-        // do something when the server starts
-        LOGGER.info("[SurvivalTrials] onServerStarting triggered");
-    }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
     // Event bus for receiving Registry Events)
@@ -124,42 +97,70 @@ public class SurvivalTrials {
         }
     }
     /************************ UTIL FUNCTIONS **************************************/
-    public static void setupDirectories(File rootDir){
-        File modDir = new File(rootDir,"SurvivalTrials");
-        if(!modDir.exists()){
-            modDir.mkdirs();
-            copyDefaultConfigs(modDir);
-        }
-        setModDirectory(modDir.toPath());
+    public static void setupDirectories(File rootDir) {
+        Path rootPath = rootDir.toPath();
+        Path modDir = rootPath.resolve("SurvivalTrials");
 
-        File playDir = new File(modDir, "playerdata");
-        if(!playDir.exists()){
-            playDir.mkdirs();
+        try {
+            Files.createDirectories(modDir);
+            LOGGER.debug("Root Directory created or already exists at {}", modDir.toString());
+        } catch (IOException e) {
+            LOGGER.error("Failed to create Root Directory at {}", modDir.toString(), e);
         }
-        setPlayerDirectory(playDir.toPath());
+
+        setModDirectory(modDir);
+        copyDefaultConfigs(modDir);
+
+        Path playerDataDir = modDir.resolve("playerdata");
+
+        try {
+            Files.createDirectories(playerDataDir);
+            LOGGER.debug("PlayerData Directory created or already exists at {}", playerDataDir.toString());
+        } catch (IOException e) {
+            LOGGER.error("Failed to create PlayerData Directory at {}", playerDataDir.toString(), e);
+        }
+
+        setPlayerDirectory(playerDataDir);
     }
 
-    private static void copyDefaultConfigs(File modDirectory) {
-        // List of default config files
-        String[] defaultConfigFiles = {"gearConfig.json", "mobOverrideConfig.json"};
 
-        for (String configFileName : defaultConfigFiles) {
-            File configFile = new File(modDirectory, configFileName);
-            if (!configFile.exists()) {
-                // The config file doesn't exist in the mod directory, copy it from resources
-                try (InputStream resourceStream = SurvivalTrials.class.getResourceAsStream("/config/" + configFileName)) {
-                    if (resourceStream != null) {
-                        Files.copy(resourceStream, configFile.toPath());
-                    } else {
-                        LOGGER.error("Failed to find resource /config/{} for copying", configFileName);
+    public static void copyDefaultConfigs(Path modDirectory) {
+        try {
+            // Get the URL of the resource/config directory.
+            URL url = SurvivalTrials.class.getResource("/config");
+            // Convert URL to URI to handle spaces in the path.
+            URI uri = url.toURI();
+            Path srcPath;
+            if (uri.getScheme().equals("jar")) {
+                // Handle JAR file path
+                FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                srcPath = fileSystem.getPath("/config");
+            } else {
+                // Handle IDE file path
+                srcPath = Paths.get(uri);
+            }
+
+            // Iterate through the resources in the /config directory.
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(srcPath)) {
+                for (Path entry : stream) {
+                    // Resolve the target path in the mod directory.
+                    Path targetPath = modDirectory.resolve(srcPath.relativize(entry).toString());
+                    // If the file does not exist in the mod directory, copy it over.
+                    if (!Files.exists(targetPath)) {
+                        SurvivalTrials.LOGGER.info("Copying default config file: {}", entry.getFileName());
+                        Files.copy(entry, targetPath, StandardCopyOption.REPLACE_EXISTING);
                     }
-                } catch (IOException e) {
-                    LOGGER.error("Failed to copy default config file {}", configFileName, e);
                 }
             }
+        } catch (Exception e) {
+            SurvivalTrials.LOGGER.error("Failed to copy default config files", e);
         }
     }
+
     /*************************** GETTER/SETTER METHODS *************************************/
+    public static void setOverriddenMobTypes(List<OverriddenMobType> overriddenMobTypes) {
+        SurvivalTrials.overriddenMobTypes = overriddenMobTypes;
+    }
     public static Path getModDirectory() {
         return modDirectory;
     }

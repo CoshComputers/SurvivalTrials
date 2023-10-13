@@ -25,7 +25,6 @@ public class MobSpawnEventHandler {
         EntityType<?> entityType = null;
 
         if (event.isSpawner()) {
-            System.out.println("*******************[onCheckSpawn Called Spawner Bypass]*********************");
             //Thread.dumpStack();
             SurvivalTrials.LOGGER.info("[My CheckSpawn]Event came from spawner so bypassing");
             return;
@@ -35,10 +34,6 @@ public class MobSpawnEventHandler {
         World world = entity.level;
 
         if (!world.isClientSide && entity instanceof MonsterEntity && !(entity instanceof EnderDragonEntity)) {
-            System.out.println("*******************[onCheckSpawn Called NOT SPAWNER]*********************");
-            //Thread.dumpStack();
-            // Get the list of mobs from the config
-
             List<OverriddenMobType> overriddenMobTypes = SurvivalTrials.getOverriddenMobTypes();
 
             // If we have mobs to use.
@@ -51,10 +46,8 @@ public class MobSpawnEventHandler {
                 if(newEntity != null){
                     newEntity.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, entity.yRot, entity.xRot);
                     boolean success = world.addFreshEntity(newEntity);
-                    if (success) {
-                        SurvivalTrials.LOGGER.warn("[MY CHECKSPAWN]Successfully spawned entity " + randomMobType.toString());
-                    } else {
-                        SurvivalTrials.LOGGER.error("[MY CHECKSPAWN]Failed to spawn entity " + randomMobType.toString());
+                    if (!success) {
+                       SurvivalTrials.LOGGER.error("[MY CHECKSPAWN]Failed to spawn entity " + randomMobType.toString());
                     }
                     //still setting to stop other spawns as need to know this is working.
                     event.setResult(Event.Result.DENY);

@@ -1,0 +1,22 @@
+{
+  "itemDropConfig": {
+    "drops": [
+      {
+        "item": "minecraft:diamond",
+        "quantity": 1
+      },
+      {
+        "item": "minecraft:emerald",
+        "quantity": 1
+      },
+      {
+        "item": "minecraft:bone",
+        "quantity": 4
+      },
+      {
+        "item": "minecraft:spider_eye",
+        "quantity": 2
+      }
+    ]
+  }
+}
