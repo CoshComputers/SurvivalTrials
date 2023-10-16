@@ -2,11 +2,15 @@ package com.dsd.st.handlers;
 
 import com.dsd.st.SurvivalTrials;
 import com.dsd.st.config.ConfigManager;
+import com.dsd.st.commands.ModConfigCommand;
 import com.dsd.st.config.PlayerConfig;
+import com.dsd.st.config.SurvivalTrialsConfig;
 import com.dsd.st.customisations.OverriddenMobType;
 import com.dsd.st.util.*;
+import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -34,7 +38,8 @@ public class ServerEventHandler {
     @SubscribeEvent
     public static void onServerStarting(FMLServerStartingEvent event) {
         CustomLogger.getInstance().info(("****** Invoked the FMLDedicatedServerSetupEvent!! *********"));
-
+        CommandDispatcher<CommandSource> commandDispatcher = event.getServer().getCommands().getDispatcher();
+        ModConfigCommand.register(commandDispatcher);
 
     }
 
@@ -65,7 +70,9 @@ public class ServerEventHandler {
         }
 
         configManager.loadSurvivalTrialsConfig();
-        boolean isDebugOn = ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isDebugOn();
+        SurvivalTrialsConfig.MainConfig modConfig = ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig();
+        CustomLogger.getInstance().info(String.format("Loaded Main Mod Config = %s",modConfig.toString()));
+        boolean isDebugOn = modConfig.isDebugOn();
         CustomLogger.getInstance().setDebugOn(isDebugOn);
 
         configManager.loadGearConfig();

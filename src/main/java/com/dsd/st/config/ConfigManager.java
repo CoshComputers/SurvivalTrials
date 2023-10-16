@@ -5,8 +5,10 @@ import com.dsd.st.containers.InitialGearConfigContainer;
 import com.dsd.st.containers.ItemDropConfigContainer;
 import com.dsd.st.containers.MobSpawnConfigContainer;
 import com.dsd.st.containers.SurvivalTrialsConfigContainer;
+import com.dsd.st.util.CustomLogger;
 import com.dsd.st.util.FileAndDirectoryManager;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -49,6 +52,7 @@ public class ConfigManager {
         try {
             Path configPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("survivalTrialsConfig.json");
             this.LOGGER.info("Loading Survival Trials Config from: {}", configPath.toString());
+            FileAndDirectoryManager.getInstance().logFileContents(configPath);
             loadConfig(configPath, SurvivalTrialsConfig.class, mainGson)
                     .ifPresent(config -> this.survivalTrialsConfigContainer = new SurvivalTrialsConfigContainer(config));
         } finally {
@@ -126,6 +130,35 @@ public class ConfigManager {
             readWriteLock.writeLock().unlock();
         }
     }
+
+    public boolean saveSurvivalTrialsConfig() {
+        boolean didSave = false;
+        Lock writeLock = readWriteLock.writeLock();
+        writeLock.lock();
+        try {
+            // Serialize the updated configuration to JSON
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String jsonConfig = gson.toJson(this.survivalTrialsConfigContainer.getSurvivalTrialsConfig());
+            // Get the path to the configuration file
+            FileAndDirectoryManager fileManager = FileAndDirectoryManager.getInstance();
+            Path configFilePath = fileManager.getModDirectory().resolve("survivalTrialsConfig.json");
+
+            // Write the updated configuration to disk
+            try (BufferedWriter writer = Files.newBufferedWriter(configFilePath)) {
+                writer.write(jsonConfig);
+                didSave = true;
+            } catch (IOException e) {
+                // Log the exception and notify command runner if necessary
+                CustomLogger.getInstance().error(String.format("Failed to save configuration - %s", e));
+                // The method to notify the command runner can be placed here
+                // ModConfigCommand.notifyCommandRunner("The command was successful, but the config file has not been updated.");
+            }
+        } finally {
+            writeLock.unlock();
+        }
+        return didSave;
+    }
+
 
     private <T> Optional<T> loadConfig(Path path, Class<T> configClass, Gson gson) {
         readWriteLock.readLock().lock();

@@ -15,13 +15,9 @@ public class SurvivalTrialsConfig {
         this.survivalTrialsConfig = mainConfig;
     }
 
-    public void setSurvivalTrialsConfig(MainConfig mainConfig) {
-        this.survivalTrialsConfig = mainConfig;
-    }
-
     public static class MainConfig {
-        @SerializedName("overrideMods")
-        private boolean overrideMods;
+        @SerializedName("overrideMobs")
+        private boolean overrideMobs;
         @SerializedName("spawnGiants")
         private boolean spawnGiants;
         @SerializedName("giveInitialGear")
@@ -34,12 +30,12 @@ public class SurvivalTrialsConfig {
         @SerializedName("debugOn")
         private boolean debugOn;
 
-        public boolean isOverrideMods() {
-            return overrideMods;
+        public boolean isoverrideMobs() {
+            return overrideMobs;
         }
 
-        public void setOverrideMods(boolean overrideMods) {
-            this.overrideMods = overrideMods;
+        public void setoverrideMobs(boolean overrideMobs) {
+            this.overrideMobs = overrideMobs;
         }
 
         public boolean isSpawnGiants() {
@@ -84,7 +80,7 @@ public class SurvivalTrialsConfig {
         @Override
         public String toString() {
             return "survivalTrialsConfig{" +
-                    "\toverrideMods:" + overrideMods +
+                    "\toverrideMobs:" + overrideMobs +
                     "\tspawnGiants:" + spawnGiants +
                     "\tgiveInitialGear :" + giveInitialGear +
                     "\tgiveSpecialLoot :" + giveSpecialLoot +

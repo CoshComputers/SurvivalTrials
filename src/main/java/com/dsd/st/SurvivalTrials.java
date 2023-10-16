@@ -24,14 +24,6 @@ public class SurvivalTrials {
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
-
-/*
-        MinecraftForge.EVENT_BUS.register(new ServerEventHandler());
-        MinecraftForge.EVENT_BUS.register(new PlayerEventHandler());
-        MinecraftForge.EVENT_BUS.register(new MobSpawnEventHandler());
-        MinecraftForge.EVENT_BUS.register(new MobInteractionEventHandler());
-*/
-
     }
 
 
