@@ -30,11 +30,11 @@ public class SurvivalTrialsConfig {
         @SerializedName("debugOn")
         private boolean debugOn;
 
-        public boolean isoverrideMobs() {
+        public boolean isOverrideMobs() {
             return overrideMobs;
         }
 
-        public void setoverrideMobs(boolean overrideMobs) {
+        public void setOverrideMobs(boolean overrideMobs) {
             this.overrideMobs = overrideMobs;
         }
 

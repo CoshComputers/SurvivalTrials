@@ -26,7 +26,7 @@ public class MobSpawnEventHandler {
     public static void onCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
 
         //check if the configuration for the Mod is set to override Mob spawning. If NOT, return.
-        if(!ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isoverrideMobs()){
+        if(!ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig().isOverrideMobs()){
             return;
         }
         if (event.isSpawner()) {

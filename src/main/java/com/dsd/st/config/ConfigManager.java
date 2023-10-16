@@ -6,6 +6,7 @@ import com.dsd.st.containers.ItemDropConfigContainer;
 import com.dsd.st.containers.MobSpawnConfigContainer;
 import com.dsd.st.containers.SurvivalTrialsConfigContainer;
 import com.dsd.st.util.CustomLogger;
+import com.dsd.st.util.EnumTypes;
 import com.dsd.st.util.FileAndDirectoryManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -198,6 +199,41 @@ public class ConfigManager {
 
     public SurvivalTrialsConfigContainer getSurvivalTrialsConfigContainer() {
         return survivalTrialsConfigContainer;
+    }
+
+    /********************************* HELPER FUNCTIONS *********************************************/
+    public synchronized String toggleMainConfigOption(EnumTypes.ModConfigOption option) {
+        SurvivalTrialsConfig.MainConfig config = ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig();
+        boolean newValue;
+        switch (option) {
+            case OVERRIDE_MOBS:
+                newValue = !config.isOverrideMobs();
+                config.setOverrideMobs(newValue);
+                break;
+            case SPAWN_GIANTS:
+                newValue = !config.isSpawnGiants();
+                config.setSpawnGiants(newValue);
+                break;
+            case GIVE_INITIAL_GEAR:
+                newValue = !config.isGiveInitialGear();
+                config.setGiveInitialGear(newValue);
+                break;
+            case GIVE_SPECIAL_LOOT:
+                newValue = !config.isGiveInitialGear();
+                config.setGiveSpecialLoot(newValue);
+                break;
+            case USE_PLAYER_HEADS:
+                newValue = !config.isUsePlayerHeads();
+                config.setUsePlayerHeads(newValue);
+                break;
+            case DEBUG_ON:
+                newValue = !config.isDebugOn();
+                config.setDebugOn(newValue);
+                break;
+            default:
+                return null;
+        }
+        return "Toggled option " + option + " from " + !newValue + " to " + newValue;
     }
 
 }

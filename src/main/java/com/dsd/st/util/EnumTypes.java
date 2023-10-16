@@ -81,7 +81,7 @@ public class EnumTypes {
                     return option;
                 }
             }
-            throw new IllegalArgumentException("Unknown option name: " + optionName);
+            return null;
         }
 
         public static List<String> getAllOptionNames() {
