@@ -2,10 +2,11 @@ package com.dsd.st.util;
 
 import com.dsd.st.SurvivalTrials;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.util.Collections;
 
@@ -16,7 +17,7 @@ public class FileAndDirectoryManager {
     private FileAndDirectoryManager(Path rootPath) {
         modDirectory = rootPath.resolve("SurvivalTrials");
         playerDataDirectory = modDirectory.resolve("playerdata");
-        setupDirectories();
+        //setupDirectories();
     }
 
     public static void initialize(Path rootPath) {
@@ -62,7 +63,8 @@ public class FileAndDirectoryManager {
     }
 
     /******************************** HELPER FUNCTIONS *******************************************/
-    public void copyDefaultConfigs() {
+
+       public void copyDefaultConfigs() {
         try {
             // Get the URL of the resource/config directory.
             URL url = SurvivalTrials.class.getResource("/config");

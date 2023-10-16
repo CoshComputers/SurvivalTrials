@@ -1,11 +1,6 @@
 package com.dsd.st.config;
 
 import com.google.gson.annotations.SerializedName;
-import com.mojang.authlib.GameProfile;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -17,6 +12,8 @@ public class PlayerConfig {
     @SerializedName("lastLogin")
     private Instant lastLogin;
 
+
+    private String playerName;
     // No-arg constructor for Gson
     private PlayerConfig() {
         this.playerUuid = null;  // Gson will override this
@@ -41,12 +38,30 @@ public class PlayerConfig {
         return lastLogin;
     }
 
-    public ItemStack getPlayerHead() {
+    public void setPlayerName(String pName){
+            this.playerName = pName;
+    }
+    public String getPlayerName(){
+        return playerName;
+    }
+
+    /*public ItemStack getPlayerHead() {
         ItemStack playerHead = new ItemStack(Items.PLAYER_HEAD);  // Ensure PLAYER_HEAD is the correct item for your Minecraft version
         CompoundNBT nbt = new CompoundNBT();
-        nbt.put("SkullOwner", NBTUtil.writeGameProfile(new CompoundNBT(), new GameProfile(this.playerUuid, null)));
+        UUID testUUID = UUID.fromString("0db1ebd5-50e2-46e9-95fb-ffd49efcf79c");
+        nbt.put("SkullOwner", NBTUtil.writeGameProfile(new CompoundNBT(), new GameProfile(testUUID, this.playerName)));
         playerHead.setTag(nbt);
+        CustomLogger.getInstance().debug(String.format("player [%s] head NBT = %s",this.playerName,playerHead.getTag().toString()));
         return playerHead;
+    }*/
+
+    @Override
+    public String toString(){
+        String s = "Player Name: [" + this.playerName + "] " +
+                "Player UUID: [" + this.playerUuid + "] " +
+                "Player Last Login: [" + this.lastLogin + "] ";
+
+        return s;
     }
 
 

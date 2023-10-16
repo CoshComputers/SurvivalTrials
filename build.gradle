@@ -12,9 +12,9 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.0'
+version = '0.1.1'
 group = 'com.dsd.st' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = project.mod_id
+archivesBaseName = 'survival_trials'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
@@ -114,6 +114,7 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
+    // implementation 'com.github.fge:javafs-nio2-provider:0.4'
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
@@ -144,15 +145,17 @@ jar {
     manifest {
         attributes([
             "Specification-Title": "survivaltrials",
-            "Specification-Vendor": "dsd",
+            "Specification-Vendor": "DSDCodingFactory",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"survivaltrialssareus",
+            "Implementation-Vendor" :"DSDCodingFactory",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
+
 }
+
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
@@ -167,6 +170,7 @@ publishing {
         }
     }
     repositories {
+        mavenCentral()
         maven {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
