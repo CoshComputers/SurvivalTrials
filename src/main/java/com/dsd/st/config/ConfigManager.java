@@ -1,17 +1,11 @@
 package com.dsd.st.config;
 
-import com.dsd.st.SurvivalTrials;
-import com.dsd.st.containers.InitialGearConfigContainer;
-import com.dsd.st.containers.ItemDropConfigContainer;
-import com.dsd.st.containers.MobSpawnConfigContainer;
-import com.dsd.st.containers.SurvivalTrialsConfigContainer;
+import com.dsd.st.containers.*;
 import com.dsd.st.util.CustomLogger;
 import com.dsd.st.util.EnumTypes;
 import com.dsd.st.util.FileAndDirectoryManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -26,19 +20,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ConfigManager {
     private static ConfigManager instance;
     private final Gson mainGson;
-    //private final Gson playerGson;
+    private final Gson giantGson;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private InitialGearConfigContainer gearConfigContainer;
     private MobSpawnConfigContainer mobOverrideConfigContainer;
     private ItemDropConfigContainer itemDropConfigContainer;
-
+    private GiantConfigContainer giantConfigContainer;
     private SurvivalTrialsConfigContainer survivalTrialsConfigContainer;
 
-    private final Logger LOGGER = LogManager.getLogger(SurvivalTrials.MOD_ID);
+    private final CustomLogger LOGGER = CustomLogger.getInstance();
 
 
     private ConfigManager() {
+
         mainGson = new Gson();
+        giantGson = new Gson();
     }
 
     public static synchronized ConfigManager getInstance() {
@@ -52,7 +48,7 @@ public class ConfigManager {
         readWriteLock.readLock().lock();
         try {
             Path configPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("survivalTrialsConfig.json");
-            this.LOGGER.info("Loading Survival Trials Config from: {}", configPath.toString());
+            this.LOGGER.info(String.format("Loading Survival Trials Config from: %s", configPath.toString()));
             FileAndDirectoryManager.getInstance().logFileContents(configPath);
             loadConfig(configPath, SurvivalTrialsConfig.class, mainGson)
                     .ifPresent(config -> this.survivalTrialsConfigContainer = new SurvivalTrialsConfigContainer(config));
@@ -65,7 +61,7 @@ public class ConfigManager {
         readWriteLock.readLock().lock();
         try {
             Path gearConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("gearConfig.json");
-            this.LOGGER.info("Loading Gear Config from: {}", gearConfigPath.toString());
+            this.LOGGER.info(String.format("Loading Gear Config from: %s", gearConfigPath.toString()));
             loadConfig(gearConfigPath, InitialGearConfigWrapper.class, mainGson)
                     .ifPresent(wrapper -> this.gearConfigContainer = new InitialGearConfigContainer(wrapper));
         } finally {
@@ -77,7 +73,7 @@ public class ConfigManager {
         readWriteLock.readLock().lock();
         try {
             Path mobConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("mobOverrideConfig.json");
-            this.LOGGER.info("Loading Mob Config from: {}", mobConfigPath.toString());
+            this.LOGGER.info(String.format("Loading Mob Config from: %s", mobConfigPath.toString()));
             loadConfig(mobConfigPath, MobSpawnConfig.class, mainGson)
                     .ifPresent(config -> this.mobOverrideConfigContainer = new MobSpawnConfigContainer(config));
         } finally {
@@ -89,7 +85,7 @@ public class ConfigManager {
         readWriteLock.readLock().lock();
         try {
             Path itemDropConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("itemDropOverrideConfig.json");
-            this.LOGGER.info("Loading Item Drop Config from: {}", itemDropConfigPath.toString());
+            this.LOGGER.info(String.format("Loading Item Drop Config from: %s", itemDropConfigPath.toString()));
             loadConfig(itemDropConfigPath, ItemDropConfigWrapper.class, mainGson)
                     .ifPresent(wrapper -> this.itemDropConfigContainer = new ItemDropConfigContainer(wrapper));
         } finally {
@@ -97,17 +93,31 @@ public class ConfigManager {
         }
     }
 
+    public void loadGiantConfig() {
+        readWriteLock.readLock().lock();
+        try {
+            Path giantConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("giantConfig.json");
+            this.LOGGER.info(String.format("Loading Giant Config from: %s", giantConfigPath.toString()));
+            loadConfig(giantConfigPath, GiantConfigWrapper.class, giantGson)
+                    .ifPresent(wrapper -> this.giantConfigContainer = new GiantConfigContainer(wrapper));
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
+
+
+
     public PlayerConfig getPlayerConfig(UUID playerUuid) {
         readWriteLock.readLock().lock();
         try {
             Path configPath = FileAndDirectoryManager.getInstance().getPlayerDataDirectory().resolve(playerUuid.toString() + ".json");
-            this.LOGGER.info("Loading Player Config from: {}", configPath.toString());
+            this.LOGGER.info(String.format("Loading Player Config from: %s", configPath.toString()));
             if (Files.exists(configPath)) {
                 try (Reader reader = Files.newBufferedReader(configPath)) {
                     this.LOGGER.info("Reading config file from: " + configPath.toAbsolutePath().toString());
                     return mainGson.fromJson(reader, PlayerConfig.class);
                 } catch (IOException e) {
-                    this.LOGGER.error("Failed to read player config", e);
+                    this.LOGGER.error(String.format("Failed to read player config - %s", e));
                 }
             }
             return null;
@@ -125,12 +135,39 @@ public class ConfigManager {
                 mainGson.toJson(playerConfig, writer);
                 this.LOGGER.info("Writing config file to: " + configPath.toAbsolutePath().toString());
             } catch (IOException e) {
-                this.LOGGER.error("Failed to write player config", e);
+                this.LOGGER.error(String.format("Failed to write player config - %s", e));
             }
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
+
+    public boolean saveGiantConfig() {
+        boolean didSave = false;
+        Lock writeLock = readWriteLock.writeLock();
+        writeLock.lock();
+        try {
+            // Serialize the updated configuration to JSON
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String jsonConfig = gson.toJson(this.giantConfigContainer.getGiantConfig());
+
+            // Get the path to the configuration file
+            FileAndDirectoryManager fileManager = FileAndDirectoryManager.getInstance();
+            Path configFilePath = fileManager.getModDirectory().resolve("giantConfig.json");
+
+            // Write the updated configuration to disk
+            try (BufferedWriter writer = Files.newBufferedWriter(configFilePath)) {
+                writer.write(jsonConfig);
+                didSave = true;
+            } catch (IOException e) {
+                this.LOGGER.error(String.format("Failed to save Giant configuration - %s", e));
+            }
+        } finally {
+            writeLock.unlock();
+        }
+        return didSave;
+    }
+
 
     public boolean saveSurvivalTrialsConfig() {
         boolean didSave = false;
@@ -150,7 +187,7 @@ public class ConfigManager {
                 didSave = true;
             } catch (IOException e) {
                 // Log the exception and notify command runner if necessary
-                CustomLogger.getInstance().error(String.format("Failed to save configuration - %s", e));
+                this.LOGGER.error(String.format("Failed to save configuration - %s", e));
                 // The method to notify the command runner can be placed here
                 // ModConfigCommand.notifyCommandRunner("The command was successful, but the config file has not been updated.");
             }
@@ -166,7 +203,7 @@ public class ConfigManager {
         try {
             try {
                 if (!Files.exists(path)) {
-                    this.LOGGER.error("Could not find {}", path);
+                    this.LOGGER.error(String.format("Could not find %s", path));
                     return Optional.empty();
                 }
                 try (InputStream inputStream = Files.newInputStream(path)) {
@@ -176,7 +213,7 @@ public class ConfigManager {
                     }
                 }
             } catch (IOException e) {
-                this.LOGGER.error("Failed to load {}", path, e);
+                this.LOGGER.error(String.format("Failed to load %s - %s", path, e));
                 return Optional.empty();
             }
         } finally {
@@ -200,6 +237,8 @@ public class ConfigManager {
     public SurvivalTrialsConfigContainer getSurvivalTrialsConfigContainer() {
         return survivalTrialsConfigContainer;
     }
+
+    public GiantConfigContainer getGiantConfigContainer(){ return giantConfigContainer; }
 
     /********************************* HELPER FUNCTIONS *********************************************/
     public synchronized String toggleMainConfigOption(EnumTypes.ModConfigOption option) {

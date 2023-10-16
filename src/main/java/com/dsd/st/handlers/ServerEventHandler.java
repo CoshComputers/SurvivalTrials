@@ -3,6 +3,7 @@ package com.dsd.st.handlers;
 import com.dsd.st.SurvivalTrials;
 import com.dsd.st.config.ConfigManager;
 import com.dsd.st.commands.ModConfigCommand;
+import com.dsd.st.config.GiantConfig;
 import com.dsd.st.config.PlayerConfig;
 import com.dsd.st.config.SurvivalTrialsConfig;
 import com.dsd.st.customisations.OverriddenMobType;
@@ -25,7 +26,7 @@ import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import java.nio.file.Path;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ServerEventHandler {
     private static final ConfigManager configManager = ConfigManager.getInstance();
     @SubscribeEvent
@@ -79,7 +80,12 @@ public class ServerEventHandler {
         CustomLogger.getInstance().info(String.format("Initial Gear Config: %s", configManager.getInitialGearConfigContainer().getInitialGearConfig()));
 
         configManager.loadItemDropConfig();
-        configManager.getItemDropConfigContainer().getItemDropConfig().debugItemDrops();
+        //configManager.getItemDropConfigContainer().getItemDropConfig().debugItemDrops();
+
+        configManager.loadGiantConfig();
+        GiantConfig gcf = configManager.getGiantConfigContainer().getGiantConfig();
+        CustomLogger.getInstance().debug(String.format("Giant Config in Memory is \n%s",gcf));
+
 
 
     }

@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 import java.util.Random;
 
-@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID)
+@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID,  bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class MobSpawnEventHandler {
 
     @SubscribeEvent

@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID)
+@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID,  bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerEventHandler {
     private static final ConfigManager configManager = ConfigManager.getInstance();
 
