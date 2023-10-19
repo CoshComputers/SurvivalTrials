@@ -9,14 +9,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MobSpawnManager {
 
     private static final int TOTAL_WEIGHT = 100;
     private static final int DEFAULT_WEIGHT = 10;
     private static final MobSpawnManager instance = new MobSpawnManager();
-    private final List<OverriddenMobType> overriddenMobTypes = new CopyOnWriteArrayList<>();
+    private final List<OverriddenMobType> overriddenMobTypes = new ArrayList<>();
     private MobSpawnManager() {
 
     }
@@ -25,7 +24,7 @@ public class MobSpawnManager {
         return instance;
     }
 
-    public synchronized void setOverriddenMobTypes(List<OverriddenMobType> newOverriddenMobTypes) {
+    public void setOverriddenMobTypes(List<OverriddenMobType> newOverriddenMobTypes) {
         overriddenMobTypes.clear();
         overriddenMobTypes.addAll(newOverriddenMobTypes);
     }

@@ -11,11 +11,12 @@ public class GiantConfig {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(this);
     }
-    @SerializedName("minSize")
-    private float minSize;
 
-    @SerializedName("maxSize")
-    private float maxSize;
+
+    @SerializedName("spawnFrequency")
+    private float spawnFrequency;
+    @SerializedName("scaleFactor")
+    private float scaleFactor;
 
     @SerializedName("health")
     private float health;
@@ -38,20 +39,20 @@ public class GiantConfig {
     @SerializedName("xpPoints")
     private int xpPoints;
 
-    public float getMinSize() {
-        return minSize;
+
+    public float getSpawnFrequency() {
+        return spawnFrequency;
     }
 
-    public void setMinSize(float minSize) {
-        this.minSize = minSize;
+    public void setSpawnFrequency(float spawnFrequency) {
+        this.spawnFrequency = spawnFrequency;
+    }
+    public float getScaleFactor() {
+        return scaleFactor;
     }
 
-    public float getMaxSize() {
-        return maxSize;
-    }
-
-    public void setMaxSize(float maxSize) {
-        this.maxSize = maxSize;
+    public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
     }
 
     public float getHealth() {

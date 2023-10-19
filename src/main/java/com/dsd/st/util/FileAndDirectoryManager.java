@@ -17,9 +17,9 @@ public class FileAndDirectoryManager {
     private FileAndDirectoryManager(Path rootPath) {
         modDirectory = rootPath.resolve("SurvivalTrials");
         playerDataDirectory = modDirectory.resolve("playerdata");
-        if (Boolean.parseBoolean(System.getProperty("survivalTrials.debug"))) {
-            setupDirectories();
-        }
+
+        //-----COMMENT OUT BEFORE PUBLISHING
+        //setupDirectories();
     }
 
     public static void initialize(Path rootPath) {

@@ -1,8 +1,8 @@
 package com.dsd.st.handlers;
 
 import com.dsd.st.SurvivalTrials;
-import com.dsd.st.config.ConfigManager;
 import com.dsd.st.commands.ModConfigCommand;
+import com.dsd.st.config.ConfigManager;
 import com.dsd.st.config.GiantConfig;
 import com.dsd.st.config.PlayerConfig;
 import com.dsd.st.config.SurvivalTrialsConfig;
@@ -26,14 +26,18 @@ import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import java.nio.file.Path;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = SurvivalTrials.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerEventHandler {
     private static final ConfigManager configManager = ConfigManager.getInstance();
+
     @SubscribeEvent
     public static void onServerStopped(FMLServerStoppedEvent event) {
         for (PlayerConfig playerConfig : PlayerManager.getInstance().getAllPlayerConfigs().values()) {
             configManager.savePlayerConfig(playerConfig.getPlayerUuid(),playerConfig);
         }
+
+        CustomLogger.getInstance().outputBulkToConsole();
+        CustomLogger.getInstance().outputtimerLogToConsole();
     }
 
     @SubscribeEvent
@@ -41,6 +45,13 @@ public class ServerEventHandler {
         CustomLogger.getInstance().info(("****** Invoked the FMLDedicatedServerSetupEvent!! *********"));
         CommandDispatcher<CommandSource> commandDispatcher = event.getServer().getCommands().getDispatcher();
         ModConfigCommand.register(commandDispatcher);
+
+        //-------COMMENT OUT BEFORE PUBLISHING--------------------------
+        for (ServerWorld world : event.getServer().getAllLevels()) {
+            // Set the time to midnight (18000 ticks)
+            world.setDayTime(18000);
+        }
+        //-------------------------------------------------------------
 
     }
 

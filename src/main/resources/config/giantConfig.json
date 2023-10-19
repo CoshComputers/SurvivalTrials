@@ -1,8 +1,7 @@
 {
   "giantConfig": {
-    "spawnFrequency": 0.05,
-    "minSize": 1.1,
-    "maxSize": 3.0,
+    "spawnFrequency": 0.5,
+    "scaleFactor":3,
     "health": 100.0,
     "damage": 15.0,
     "dropItems": [

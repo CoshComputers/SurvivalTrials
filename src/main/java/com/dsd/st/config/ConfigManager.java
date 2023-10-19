@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -45,71 +44,71 @@ public class ConfigManager {
     }
 
     public void loadSurvivalTrialsConfig() {
-        readWriteLock.readLock().lock();
-        try {
+        //readWriteLock.readLock().lock();
+       // try {
             Path configPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("survivalTrialsConfig.json");
             this.LOGGER.info(String.format("Loading Survival Trials Config from: %s", configPath.toString()));
             FileAndDirectoryManager.getInstance().logFileContents(configPath);
             loadConfig(configPath, SurvivalTrialsConfig.class, mainGson)
                     .ifPresent(config -> this.survivalTrialsConfigContainer = new SurvivalTrialsConfigContainer(config));
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+       // } finally {
+       //     readWriteLock.readLock().unlock();
+       // }
     }
 
     public void loadGearConfig() {
-        readWriteLock.readLock().lock();
-        try {
+        //readWriteLock.readLock().lock();
+        //try {
             Path gearConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("gearConfig.json");
             this.LOGGER.info(String.format("Loading Gear Config from: %s", gearConfigPath.toString()));
             loadConfig(gearConfigPath, InitialGearConfigWrapper.class, mainGson)
                     .ifPresent(wrapper -> this.gearConfigContainer = new InitialGearConfigContainer(wrapper));
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        //} finally {
+        //    readWriteLock.readLock().unlock();
+        //}
     }
 
     public void loadMobConfig() {
-        readWriteLock.readLock().lock();
-        try {
+        //readWriteLock.readLock().lock();
+        //try {
             Path mobConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("mobOverrideConfig.json");
             this.LOGGER.info(String.format("Loading Mob Config from: %s", mobConfigPath.toString()));
             loadConfig(mobConfigPath, MobSpawnConfig.class, mainGson)
                     .ifPresent(config -> this.mobOverrideConfigContainer = new MobSpawnConfigContainer(config));
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        //} finally {
+        //    readWriteLock.readLock().unlock();
+        //}
     }
 
     public void loadItemDropConfig() {
-        readWriteLock.readLock().lock();
-        try {
+        //readWriteLock.readLock().lock();
+        //try {
             Path itemDropConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("itemDropOverrideConfig.json");
             this.LOGGER.info(String.format("Loading Item Drop Config from: %s", itemDropConfigPath.toString()));
             loadConfig(itemDropConfigPath, ItemDropConfigWrapper.class, mainGson)
                     .ifPresent(wrapper -> this.itemDropConfigContainer = new ItemDropConfigContainer(wrapper));
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        //} finally {
+        //    readWriteLock.readLock().unlock();
+        //}
     }
 
     public void loadGiantConfig() {
-        readWriteLock.readLock().lock();
-        try {
+        //readWriteLock.readLock().lock();
+        //try {
             Path giantConfigPath = FileAndDirectoryManager.getInstance().getModDirectory().resolve("giantConfig.json");
             this.LOGGER.info(String.format("Loading Giant Config from: %s", giantConfigPath.toString()));
             loadConfig(giantConfigPath, GiantConfigWrapper.class, giantGson)
                     .ifPresent(wrapper -> this.giantConfigContainer = new GiantConfigContainer(wrapper));
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        //} finally {
+        //    readWriteLock.readLock().unlock();
+        //}
     }
 
 
 
     public PlayerConfig getPlayerConfig(UUID playerUuid) {
-        readWriteLock.readLock().lock();
-        try {
+        //readWriteLock.readLock().lock();
+        //try {
             Path configPath = FileAndDirectoryManager.getInstance().getPlayerDataDirectory().resolve(playerUuid.toString() + ".json");
             this.LOGGER.info(String.format("Loading Player Config from: %s", configPath.toString()));
             if (Files.exists(configPath)) {
@@ -121,14 +120,14 @@ public class ConfigManager {
                 }
             }
             return null;
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        //} finally {
+        //    readWriteLock.readLock().unlock();
+        //}
     }
 
     public void savePlayerConfig(UUID playerUuid, PlayerConfig playerConfig) {
-        readWriteLock.writeLock().lock();
-        try {
+        //readWriteLock.writeLock().lock();
+        //try {
 
             Path configPath = FileAndDirectoryManager.getInstance().getPlayerDataDirectory().resolve(playerUuid.toString() + ".json");
             try (Writer writer = Files.newBufferedWriter(configPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -137,16 +136,16 @@ public class ConfigManager {
             } catch (IOException e) {
                 this.LOGGER.error(String.format("Failed to write player config - %s", e));
             }
-        } finally {
-            readWriteLock.writeLock().unlock();
-        }
+        //} finally {
+        //    readWriteLock.writeLock().unlock();
+        //}
     }
 
     public boolean saveGiantConfig() {
         boolean didSave = false;
-        Lock writeLock = readWriteLock.writeLock();
-        writeLock.lock();
-        try {
+        //Lock writeLock = readWriteLock.writeLock();
+        //writeLock.lock();
+        //try {
             // Serialize the updated configuration to JSON
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String jsonConfig = gson.toJson(this.giantConfigContainer.getGiantConfig());
@@ -162,18 +161,18 @@ public class ConfigManager {
             } catch (IOException e) {
                 this.LOGGER.error(String.format("Failed to save Giant configuration - %s", e));
             }
-        } finally {
-            writeLock.unlock();
-        }
+        //} finally {
+        //    writeLock.unlock();
+        //}
         return didSave;
     }
 
 
     public boolean saveSurvivalTrialsConfig() {
         boolean didSave = false;
-        Lock writeLock = readWriteLock.writeLock();
-        writeLock.lock();
-        try {
+        //Lock writeLock = readWriteLock.writeLock();
+        //writeLock.lock();
+        //try {
             // Serialize the updated configuration to JSON
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String jsonConfig = gson.toJson(this.survivalTrialsConfigContainer.getSurvivalTrialsConfig());
@@ -191,16 +190,16 @@ public class ConfigManager {
                 // The method to notify the command runner can be placed here
                 // ModConfigCommand.notifyCommandRunner("The command was successful, but the config file has not been updated.");
             }
-        } finally {
-            writeLock.unlock();
-        }
+        //} finally {
+        //    writeLock.unlock();
+        //}
         return didSave;
     }
 
 
     private <T> Optional<T> loadConfig(Path path, Class<T> configClass, Gson gson) {
-        readWriteLock.readLock().lock();
-        try {
+        //readWriteLock.readLock().lock();
+        //try {
             try {
                 if (!Files.exists(path)) {
                     this.LOGGER.error(String.format("Could not find %s", path));
@@ -216,9 +215,9 @@ public class ConfigManager {
                 this.LOGGER.error(String.format("Failed to load %s - %s", path, e));
                 return Optional.empty();
             }
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+        //} finally {
+        //    readWriteLock.readLock().unlock();
+        //}
     }
 
     /*********************************** Getters ****************************************/
@@ -241,7 +240,7 @@ public class ConfigManager {
     public GiantConfigContainer getGiantConfigContainer(){ return giantConfigContainer; }
 
     /********************************* HELPER FUNCTIONS *********************************************/
-    public synchronized String toggleMainConfigOption(EnumTypes.ModConfigOption option) {
+    public String toggleMainConfigOption(EnumTypes.ModConfigOption option) {
         SurvivalTrialsConfig.MainConfig config = ConfigManager.getInstance().getSurvivalTrialsConfigContainer().getSurvivalTrialsConfig().getSurvivalTrialsMainConfig();
         boolean newValue;
         switch (option) {

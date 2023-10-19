@@ -3,6 +3,7 @@ package com.dsd.st.handlers;
 import com.dsd.st.SurvivalTrials;
 import com.dsd.st.config.ConfigManager;
 import com.dsd.st.config.ItemDropConfig;
+import com.dsd.st.entities.GiantZombieEntity;
 import com.dsd.st.util.CustomLogger;
 import com.dsd.st.util.EnumTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -19,7 +20,9 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -57,6 +60,32 @@ public class MobInteractionEventHandler {
         }
     }
 
+    @SubscribeEvent
+    public void onLivingHurt(LivingHurtEvent event) {
+        String ms = String.format("Living Entity Hurt: Source [%s], Amount [%s]",event.getSource(),event.getAmount());
+        CustomLogger.getInstance().debug(ms);
+        //CustomLogger.getInstance().bulkLog("onLivingHurt",ms);
+
+    }
+
+    @SubscribeEvent
+    public static void onLivingDamage(LivingDamageEvent event) {
+        // Your handling code
+        handleLivingDamage(event);
+    }
+
+
+    /*---------------------------------------HELPER FUNCTIONS_______________________________________________*/
+    public static void handleLivingDamage(LivingDamageEvent event) {
+        // Do something with the event, for example:
+        if (event.getEntityLiving() instanceof GiantZombieEntity) {
+            // This is your custom Giant Zombie entity
+            // Maybe log the amount of damage
+            GiantZombieEntity giant = (GiantZombieEntity) event.getEntity();
+          // CustomLogger.getInstance().bulkLog("HandleLivingHurt",String.format("Giant Zombie hurt, source [%s] damage [%f] ",event.getSource(),event.getAmount()));
+          // CustomLogger.getInstance().bulkLog("HandleLivingHurt",giant.toString());
+        }
+    }
     private static boolean dropItemInWorld(World world, LivingEntity entity, String itemName, int quantity) {
         // Get the Item object from the string
         ResourceLocation itemResourceLocation = new ResourceLocation(itemName);

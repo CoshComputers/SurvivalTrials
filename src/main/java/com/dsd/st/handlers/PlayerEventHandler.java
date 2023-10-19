@@ -15,6 +15,8 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -34,6 +36,7 @@ public class PlayerEventHandler {
     @SubscribeEvent
     public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         PlayerEntity player = event.getPlayer();
+        CustomLogger.getInstance().playerLogEntry(player);
         UUID playerUUID = player.getUUID();
         Path playerConfigFilePath = FileAndDirectoryManager.getInstance().getPlayerDataDirectory().resolve(playerUUID.toString() + ".json");
         PlayerConfig playerConfig;
@@ -57,9 +60,15 @@ public class PlayerEventHandler {
 
             }
         }
+
+        //-------COMMENT OUT BEFORE PUBLISHING
+        EffectInstance nightVisionEffect = new EffectInstance(Effects.NIGHT_VISION, 99999, 0, false, false);
+        event.getPlayer().addEffect(nightVisionEffect);
+        //-------------------------------------
         playerConfig.setPlayerName(String.valueOf(player.getName().getString()));
         PlayerManager.getInstance().addPlayerConfig(playerConfig);
         configManager.savePlayerConfig(playerUUID,playerConfig);
+
     }
 
     @SubscribeEvent
